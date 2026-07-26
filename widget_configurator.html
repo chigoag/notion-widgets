@@ -163,14 +163,17 @@
   </div>
 
 <script>
-  // Change this if the widget file lives at a different path in your repo
+  // Always points at the live GitHub Pages site, regardless of how this
+  // configurator page itself is being viewed (locally, from a preview, etc).
+  // Update this if the repo name or username ever changes.
+  const BASE_URL = 'https://chigoag.github.io/notion-widgets/';
   const WIDGET_FILE = 'notion_clock_widget_customisable.html';
 
   const state = { theme: 'beige', label: '', font: 'serif', format: '12',
     custom: { bg: '#F5F0E8', card: '#FBF7F1', border: '#D8C9B0', text: '#6B5B45', accent: '#A8927A' } };
 
   function buildUrl() {
-    const base = new URL(WIDGET_FILE, window.location.href);
+    const base = new URL(WIDGET_FILE, BASE_URL);
     const p = new URLSearchParams();
     p.set('theme', state.theme);
     if (state.theme === 'custom') {
