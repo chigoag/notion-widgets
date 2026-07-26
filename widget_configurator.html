@@ -2,10 +2,59 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Clock Widget — Customise Yours</title>
+<title>Clock Widget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500&family=Inter:wght@400;500&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; padding: 0; }
-  body {
+
+  /* ---------- Widget view (shown when ?embed=1) ---------- */
+  #widgetView {
+    display: none;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font, Georgia, 'Times New Roman', serif);
+  }
+  #widgetView .widget {
+    text-align: center;
+    padding: 28px 48px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+  #widgetView .label {
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: var(--label-case, uppercase);
+    font-weight: var(--label-weight, normal);
+    font-style: var(--label-style, normal);
+    margin-bottom: 6px;
+  }
+  #widgetView .time {
+    font-size: 46px;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+  #widgetView .seconds {
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    vertical-align: 8px;
+    margin-left: 4px;
+  }
+  #widgetView .date {
+    font-size: 14px;
+    color: var(--accent);
+    margin-top: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Configurator view (default) ---------- */
+  #configuratorView {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background: #FAF7F2;
     color: #4A4238;
@@ -14,8 +63,8 @@
     align-items: center;
     padding: 40px 20px 60px;
   }
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-  p.sub { color: #8A7F6E; font-size: 14px; margin-top: 0; margin-bottom: 32px; }
+  #configuratorView h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  #configuratorView p.sub { color: #8A7F6E; font-size: 14px; margin-top: 0; margin-bottom: 32px; }
   .layout {
     display: flex;
     gap: 40px;
@@ -29,7 +78,7 @@
     border: 1px solid #E4DDD0;
     border-radius: 14px;
     padding: 24px;
-    width: 280px;
+    width: 300px;
   }
   .controls label {
     display: block;
@@ -72,18 +121,69 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    gap: 8px;
   }
-  .colour-row label { margin: 0; font-weight: 400; font-size: 13px; }
+  .colour-row label { margin: 0; font-weight: 400; font-size: 13px; flex-shrink: 0; }
   .colour-row input[type="color"] {
     width: 36px; height: 26px; border: none; border-radius: 6px; padding: 0; cursor: pointer;
   }
+  .opacity-dots { display: none; gap: 5px; margin-top: 6px; }
+  .opacity-dots.open { display: flex; }
+  .opacity-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background-image:
+      linear-gradient(45deg, #ddd 25%, transparent 25%),
+      linear-gradient(-45deg, #ddd 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ddd 75%),
+      linear-gradient(-45deg, transparent 75%, #ddd 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  }
+  .opacity-dot span {
+    display: block;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+  }
+  .opacity-dot.selected { border-color: #4A4238; }
+  .colour-block { margin-bottom: 10px; }
+  .transparent-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin: 12px 0 4px;
+  }
+  .transparent-toggle input { width: auto; }
+  .text-format-row { display: flex; gap: 8px; align-items: center; }
+  .fmt-btn {
+    width: 36px; height: 36px;
+    border: 1px solid #D8C9B0;
+    border-radius: 8px;
+    background: #FBF7F1;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .fmt-btn.active { background: #6B5B45; color: #fff; border-color: #6B5B45; }
+  .text-format-row select { flex: 1; }
   .preview-area { flex: 1; min-width: 300px; }
   iframe {
     width: 100%;
     height: 220px;
     border: 1px solid #E4DDD0;
     border-radius: 14px;
+    /* checkerboard so transparency is visible in the preview */
+    background-image:
+      linear-gradient(45deg, #eee 25%, transparent 25%),
+      linear-gradient(-45deg, #eee 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #eee 75%),
+      linear-gradient(-45deg, transparent 75%, #eee 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
   }
   .link-box {
     margin-top: 20px;
@@ -110,129 +210,376 @@
 </style>
 </head>
 <body>
-  <h1>Customise your clock widget</h1>
-  <p class="sub">Pick a look, then copy the link into Notion using <code>/embed</code>.</p>
 
-  <div class="layout">
-    <div class="controls">
-      <label>Colour theme</label>
-      <div class="swatches">
-        <div class="swatch selected" data-theme="beige" style="background:#F5F0E8;" title="Beige"></div>
-        <div class="swatch" data-theme="blush" style="background:#F7ECEA;" title="Blush"></div>
-        <div class="swatch" data-theme="sage" style="background:#EEF1E8;" title="Sage"></div>
-        <div class="swatch" data-theme="ivory" style="background:#FBF9F3;" title="Ivory & gold"></div>
-        <div class="swatch" data-theme="terracotta" style="background:#F3E4DA;" title="Terracotta"></div>
-        <div class="swatch" data-theme="navy" style="background:#E9EDF2;" title="Navy & cream"></div>
-        <div class="swatch" data-theme="charcoal" style="background:#2B2B29;" title="Charcoal & gold"></div>
-        <div class="swatch custom-swatch" data-theme="custom" title="Custom colours">+</div>
-      </div>
-
-      <div class="custom-colours" id="customColours">
-        <div class="colour-row"><label>Background</label><input type="color" id="cBg" value="#F5F0E8"></div>
-        <div class="colour-row"><label>Card</label><input type="color" id="cCard" value="#FBF7F1"></div>
-        <div class="colour-row"><label>Border</label><input type="color" id="cBorder" value="#D8C9B0"></div>
-        <div class="colour-row"><label>Time text</label><input type="color" id="cText" value="#6B5B45"></div>
-        <div class="colour-row"><label>Label / date</label><input type="color" id="cAccent" value="#A8927A"></div>
-      </div>
-
-      <label for="labelInput">Label text (optional)</label>
-      <input type="text" id="labelInput" placeholder="e.g. Good morning" maxlength="30">
-
-      <label for="fontSelect">Font style</label>
-      <select id="fontSelect">
-        <option value="playfair">Playfair Display (elegant serif)</option>
-        <option value="serif" selected>Georgia (classic serif)</option>
-        <option value="dancing">Dancing Script (handwritten)</option>
-        <option value="poppins">Poppins (modern sans)</option>
-        <option value="inter">Inter (clean sans)</option>
-      </select>
-
-      <label for="formatSelect">Time format</label>
-      <select id="formatSelect">
-        <option value="12">12-hour</option>
-        <option value="24">24-hour</option>
-      </select>
+  <!-- Bare widget — only shown when the URL has ?embed=1 -->
+  <div id="widgetView">
+    <div class="widget">
+      <div class="label" id="label"></div>
+      <div><span class="time" id="time">--:--</span><span class="seconds" id="seconds"></span><span class="seconds" id="ampm"></span></div>
+      <div class="date" id="date">Loading…</div>
     </div>
+  </div>
 
-    <div class="preview-area">
-      <iframe id="preview"></iframe>
-      <div class="link-box" id="linkBox"></div>
-      <button id="copyBtn">Copy embed link</button>
-      <span class="copied" id="copiedMsg" style="display:none;">Copied!</span>
+  <!-- Picker tool — shown by default -->
+  <div id="configuratorView">
+    <h1>Customise your clock widget</h1>
+    <p class="sub">Pick a look, then copy the link into Notion using <code>/embed</code>.</p>
+
+    <div class="layout">
+      <div class="controls">
+        <label>Colour theme</label>
+        <div class="swatches">
+          <div class="swatch selected" data-theme="beige" style="background:#F5F0E8;" title="Beige"></div>
+          <div class="swatch" data-theme="blush" style="background:#F7ECEA;" title="Blush"></div>
+          <div class="swatch" data-theme="sage" style="background:#EEF1E8;" title="Sage"></div>
+          <div class="swatch" data-theme="ivory" style="background:#FBF9F3;" title="Ivory & gold"></div>
+          <div class="swatch" data-theme="terracotta" style="background:#F3E4DA;" title="Terracotta"></div>
+          <div class="swatch" data-theme="navy" style="background:#E9EDF2;" title="Navy & cream"></div>
+          <div class="swatch" data-theme="charcoal" style="background:#2B2B29;" title="Charcoal & gold"></div>
+          <div class="swatch custom-swatch" data-theme="custom" title="Custom colours">+</div>
+        </div>
+
+        <div class="custom-colours" id="customColours">
+          <label class="transparent-toggle">
+            <input type="checkbox" id="bgTransparent">
+            Transparent background (blends into Notion page)
+          </label>
+
+          <div class="colour-block" id="bgRow">
+            <div class="colour-row">
+              <label>Background</label>
+              <input type="color" id="cBg" value="#F5F0E8">
+            </div>
+            <div class="opacity-dots" data-key="bg"></div>
+          </div>
+          <div class="colour-block">
+            <div class="colour-row">
+              <label>Card</label>
+              <input type="color" id="cCard" value="#FBF7F1">
+            </div>
+            <div class="opacity-dots" data-key="card"></div>
+          </div>
+          <div class="colour-block">
+            <div class="colour-row">
+              <label>Border</label>
+              <input type="color" id="cBorder" value="#D8C9B0">
+            </div>
+            <div class="opacity-dots" data-key="border"></div>
+          </div>
+          <div class="colour-block">
+            <div class="colour-row">
+              <label>Time text</label>
+              <input type="color" id="cText" value="#6B5B45">
+            </div>
+            <div class="opacity-dots" data-key="text"></div>
+          </div>
+          <div class="colour-block">
+            <div class="colour-row">
+              <label>Label/date</label>
+              <input type="color" id="cAccent" value="#A8927A">
+            </div>
+            <div class="opacity-dots" data-key="accent"></div>
+          </div>
+        </div>
+
+        <label for="labelInput">Label text (optional)</label>
+        <input type="text" id="labelInput" placeholder="e.g. Good morning" maxlength="30">
+
+        <label>Label formatting</label>
+        <div class="text-format-row">
+          <button type="button" class="fmt-btn" id="fmtBold" title="Bold"><b>B</b></button>
+          <button type="button" class="fmt-btn" id="fmtItalic" title="Italic"><i>I</i></button>
+          <select id="caseSelect">
+            <option value="uppercase">UPPERCASE</option>
+            <option value="none">Normal case</option>
+            <option value="lowercase">lowercase</option>
+            <option value="capitalize">Capitalize</option>
+          </select>
+        </div>
+
+        <label for="fontSelect">Font style</label>
+        <select id="fontSelect">
+          <option value="playfair">Playfair Display (elegant serif)</option>
+          <option value="serif" selected>Georgia (classic serif)</option>
+          <option value="dancing">Dancing Script (handwritten)</option>
+          <option value="poppins">Poppins (modern sans)</option>
+          <option value="inter">Inter (clean sans)</option>
+        </select>
+
+        <label for="formatSelect">Time format</label>
+        <select id="formatSelect">
+          <option value="12">12-hour</option>
+          <option value="24">24-hour</option>
+        </select>
+
+        <label class="transparent-toggle" style="margin-top: 12px;">
+          <input type="checkbox" id="showSeconds">
+          Show seconds
+        </label>
+
+        <label for="dateLayoutSelect">Date layout</label>
+        <select id="dateLayoutSelect">
+          <option value="full">Sunday 26 July</option>
+          <option value="dayMonthYear">26 July 2026</option>
+          <option value="short">Sun, 26 Jul</option>
+          <option value="numeric">26/07/2026</option>
+          <option value="monthDay">July 26</option>
+        </select>
+      </div>
+
+      <div class="preview-area">
+        <iframe id="preview"></iframe>
+        <div class="link-box" id="linkBox"></div>
+        <button id="copyBtn">Copy embed link</button>
+        <span class="copied" id="copiedMsg" style="display:none;">Copied!</span>
+      </div>
     </div>
   </div>
 
 <script>
-  const BASE_URL = 'https://chigoag.github.io/notion-widgets/';
-  const WIDGET_FILE = 'notion_clock_widget_customisable.html';
+  const params = new URLSearchParams(window.location.search);
+  const isEmbed = params.get('embed') === '1';
 
-  const state = { theme: 'beige', label: '', font: 'serif', format: '12',
-    custom: { bg: '#F5F0E8', card: '#FBF7F1', border: '#D8C9B0', text: '#6B5B45', accent: '#A8927A' } };
+  const themes = {
+    beige:      { bg: '#F5F0E8', card: '#FBF7F1', border: '#D8C9B0', text: '#6B5B45', accent: '#A8927A' },
+    blush:      { bg: '#F7ECEA', card: '#FDF6F5', border: '#E3C3BE', text: '#8A5A52', accent: '#C99A92' },
+    sage:       { bg: '#EEF1E8', card: '#F6F8F2', border: '#C9D4B8', text: '#586B45', accent: '#95A87F' },
+    charcoal:   { bg: '#2B2B29', card: '#3A3A37', border: '#5C5A52', text: '#F0EAD8', accent: '#C9A66B' },
+    ivory:      { bg: '#FBF9F3', card: '#FFFFFF', border: '#E6DFC8', text: '#4A4234', accent: '#B7A15C' },
+    terracotta: { bg: '#F3E4DA', card: '#FBF3EC', border: '#D9A98B', text: '#7A4326', accent: '#C17B4F' },
+    navy:       { bg: '#E9EDF2', card: '#F5F7FA', border: '#AEBDD1', text: '#28374D', accent: '#5C7599' }
+  };
+  const fonts = {
+    serif:    "Georgia, 'Times New Roman', serif",
+    sans:     "'Helvetica Neue', Arial, sans-serif",
+    playfair: "'Playfair Display', Georgia, serif",
+    poppins:  "'Poppins', 'Helvetica Neue', sans-serif",
+    inter:    "'Inter', 'Helvetica Neue', sans-serif",
+    dancing:  "'Dancing Script', cursive"
+  };
 
-  function buildUrl() {
-    const base = new URL(WIDGET_FILE, BASE_URL);
-    const p = new URLSearchParams();
-    p.set('theme', state.theme);
-    if (state.theme === 'custom') {
-      p.set('bg', state.custom.bg);
-      p.set('card', state.custom.card);
-      p.set('border', state.custom.border);
-      p.set('text', state.custom.text);
-      p.set('accent', state.custom.accent);
+  function hexToRgba(hex, opacityPct) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${(opacityPct / 100).toFixed(2)})`;
+  }
+
+  if (isEmbed) {
+    // ---------- Render just the bare widget ----------
+    document.getElementById('configuratorView').remove();
+    const widgetView = document.getElementById('widgetView');
+    widgetView.style.display = 'flex';
+
+    let theme;
+    if (params.get('theme') === 'custom') {
+      theme = {
+        bg:     params.get('bgTransparent') === '1' ? 'transparent' : (params.get('bg') || '#F5F0E8'),
+        card:   params.get('card') || '#FBF7F1',
+        border: params.get('border') || '#D8C9B0',
+        text:   params.get('text') || '#6B5B45',
+        accent: params.get('accent') || '#A8927A'
+      };
+    } else {
+      theme = themes[params.get('theme')] || themes.beige;
     }
-    if (state.label) p.set('label', state.label);
-    p.set('font', state.font);
-    p.set('format', state.format);
-    base.search = p.toString();
-    return base.toString();
-  }
+    const font = fonts[params.get('font')] || fonts.serif;
+    const label = params.get('label') || '';
+    const use24h = params.get('format') === '24';
 
-  function refresh() {
-    const url = buildUrl();
-    document.getElementById('preview').src = url;
-    document.getElementById('linkBox').textContent = url;
-  }
+    document.body.style.background = theme.bg;
+    widgetView.style.setProperty('--card', theme.card);
+    widgetView.style.setProperty('--border', theme.border);
+    widgetView.style.setProperty('--text', theme.text);
+    widgetView.style.setProperty('--accent', theme.accent);
+    widgetView.style.setProperty('--font', font);
+    document.getElementById('label').textContent = label;
+    document.getElementById('label').style.display = label ? 'block' : 'none';
+    widgetView.style.setProperty('--label-case', params.get('labelCase') || 'uppercase');
+    widgetView.style.setProperty('--label-weight', params.get('labelBold') === '1' ? 'bold' : 'normal');
+    widgetView.style.setProperty('--label-style', params.get('labelItalic') === '1' ? 'italic' : 'normal');
 
-  document.querySelectorAll('.swatch').forEach(sw => {
-    sw.addEventListener('click', () => {
-      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
-      sw.classList.add('selected');
-      state.theme = sw.dataset.theme;
-      document.getElementById('customColours').classList.toggle('visible', state.theme === 'custom');
-      refresh();
+    const dateLayouts = {
+      full:         { weekday: 'long', day: 'numeric', month: 'long' },
+      dayMonthYear: { day: 'numeric', month: 'long', year: 'numeric' },
+      short:        { weekday: 'short', day: 'numeric', month: 'short' },
+      numeric:      { day: '2-digit', month: '2-digit', year: 'numeric' },
+      monthDay:     { month: 'long', day: 'numeric' }
+    };
+    const dateLayout = dateLayouts[params.get('dateLayout')] || dateLayouts.full;
+    const showSeconds = params.get('seconds') === '1';
+
+    function update() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      let period = '';
+      if (!use24h) {
+        period = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+      } else {
+        hours = String(hours).padStart(2, '0');
+      }
+      document.getElementById('time').textContent = `${hours}:${minutes}`;
+      document.getElementById('seconds').textContent = showSeconds ? ':' + String(now.getSeconds()).padStart(2, '0') : '';
+      document.getElementById('ampm').textContent = use24h ? '' : ' ' + period;
+      document.getElementById('date').textContent = now.toLocaleDateString('en-GB', dateLayout);
+    }
+    update();
+    setInterval(update, 1000);
+
+  } else {
+    // ---------- Configurator / picker tool ----------
+    document.getElementById('widgetView').remove();
+
+    const state = {
+      theme: 'beige', label: '', font: 'serif', format: '12', bgTransparent: false,
+      labelBold: false, labelItalic: false, labelCase: 'uppercase', dateLayout: 'full', showSeconds: false,
+      custom: {
+        bg:     { hex: '#F5F0E8', opacity: 100 },
+        card:   { hex: '#FBF7F1', opacity: 100 },
+        border: { hex: '#D8C9B0', opacity: 100 },
+        text:   { hex: '#6B5B45', opacity: 100 },
+        accent: { hex: '#A8927A', opacity: 100 }
+      }
+    };
+
+    function buildUrl() {
+      const base = new URL(window.location.pathname, window.location.origin);
+      const p = new URLSearchParams();
+      p.set('embed', '1');
+      p.set('theme', state.theme);
+      if (state.theme === 'custom') {
+        if (state.bgTransparent) {
+          p.set('bgTransparent', '1');
+        } else {
+          p.set('bg', hexToRgba(state.custom.bg.hex, state.custom.bg.opacity));
+        }
+        p.set('card', hexToRgba(state.custom.card.hex, state.custom.card.opacity));
+        p.set('border', hexToRgba(state.custom.border.hex, state.custom.border.opacity));
+        p.set('text', hexToRgba(state.custom.text.hex, state.custom.text.opacity));
+        p.set('accent', hexToRgba(state.custom.accent.hex, state.custom.accent.opacity));
+      }
+      if (state.label) p.set('label', state.label);
+      p.set('labelBold', state.labelBold ? '1' : '0');
+      p.set('labelItalic', state.labelItalic ? '1' : '0');
+      p.set('labelCase', state.labelCase);
+      p.set('font', state.font);
+      p.set('format', state.format);
+      p.set('dateLayout', state.dateLayout);
+      p.set('seconds', state.showSeconds ? '1' : '0');
+      base.search = p.toString();
+      return base.toString();
+    }
+
+    function refresh() {
+      const url = buildUrl();
+      document.getElementById('preview').src = url;
+      document.getElementById('linkBox').textContent = url;
+    }
+
+    document.querySelectorAll('.swatch').forEach(sw => {
+      sw.addEventListener('click', () => {
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+        state.theme = sw.dataset.theme;
+        document.getElementById('customColours').classList.toggle('visible', state.theme === 'custom');
+        refresh();
+      });
     });
-  });
 
-  ['cBg','cCard','cBorder','cText','cAccent'].forEach(id => {
-    document.getElementById(id).addEventListener('input', e => {
-      const key = { cBg:'bg', cCard:'card', cBorder:'border', cText:'text', cAccent:'accent' }[id];
-      state.custom[key] = e.target.value;
+    const colourKeys = { cBg: 'bg', cCard: 'card', cBorder: 'border', cText: 'text', cAccent: 'accent' };
+    const opacitySteps = [100, 75, 50, 25, 0];
+
+    function renderDots(key) {
+      const container = document.querySelector(`.opacity-dots[data-key="${key}"]`);
+      container.innerHTML = '';
+      opacitySteps.forEach(step => {
+        const dot = document.createElement('div');
+        dot.className = 'opacity-dot' + (state.custom[key].opacity === step ? ' selected' : '');
+        dot.title = step + '%';
+        const inner = document.createElement('span');
+        inner.style.background = hexToRgba(state.custom[key].hex, step);
+        dot.appendChild(inner);
+        dot.addEventListener('click', () => {
+          state.custom[key].opacity = step;
+          renderDots(key);
+          if (state.theme === 'custom') refresh();
+        });
+        container.appendChild(dot);
+      });
+    }
+
+    Object.keys(colourKeys).forEach(id => {
+      const key = colourKeys[id];
+      document.getElementById(id).addEventListener('click', () => {
+        document.querySelectorAll('.opacity-dots').forEach(d => {
+          d.classList.toggle('open', d.dataset.key === key);
+        });
+      });
+      document.getElementById(id).addEventListener('input', e => {
+        state.custom[key].hex = e.target.value;
+        renderDots(key);
+        if (state.theme === 'custom') refresh();
+      });
+    });
+
+    Object.values(colourKeys).forEach(renderDots);
+
+    document.getElementById('bgTransparent').addEventListener('change', e => {
+      state.bgTransparent = e.target.checked;
+      document.getElementById('bgRow').style.opacity = e.target.checked ? '0.4' : '1';
+      document.getElementById('cBg').disabled = e.target.checked;
       if (state.theme === 'custom') refresh();
     });
-  });
 
-  document.getElementById('labelInput').addEventListener('input', e => {
-    state.label = e.target.value;
-    refresh();
-  });
-  document.getElementById('fontSelect').addEventListener('change', e => {
-    state.font = e.target.value;
-    refresh();
-  });
-  document.getElementById('formatSelect').addEventListener('change', e => {
-    state.format = e.target.value;
-    refresh();
-  });
-
-  document.getElementById('copyBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText(buildUrl()).then(() => {
-      const msg = document.getElementById('copiedMsg');
-      msg.style.display = 'inline';
-      setTimeout(() => msg.style.display = 'none', 1500);
+    document.getElementById('labelInput').addEventListener('input', e => {
+      state.label = e.target.value;
+      refresh();
     });
-  });
+    document.getElementById('fontSelect').addEventListener('change', e => {
+      state.font = e.target.value;
+      refresh();
+    });
+    document.getElementById('formatSelect').addEventListener('change', e => {
+      state.format = e.target.value;
+      refresh();
+    });
+    document.getElementById('dateLayoutSelect').addEventListener('change', e => {
+      state.dateLayout = e.target.value;
+      refresh();
+    });
+    document.getElementById('showSeconds').addEventListener('change', e => {
+      state.showSeconds = e.target.checked;
+      refresh();
+    });
+    document.getElementById('fmtBold').addEventListener('click', () => {
+      state.labelBold = !state.labelBold;
+      document.getElementById('fmtBold').classList.toggle('active', state.labelBold);
+      refresh();
+    });
+    document.getElementById('fmtItalic').addEventListener('click', () => {
+      state.labelItalic = !state.labelItalic;
+      document.getElementById('fmtItalic').classList.toggle('active', state.labelItalic);
+      refresh();
+    });
+    document.getElementById('caseSelect').addEventListener('change', e => {
+      state.labelCase = e.target.value;
+      refresh();
+    });
 
-  refresh();
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(buildUrl()).then(() => {
+        const msg = document.getElementById('copiedMsg');
+        msg.style.display = 'inline';
+        setTimeout(() => msg.style.display = 'none', 1500);
+      });
+    });
+
+    refresh();
+  }
 </script>
 </body>
 </html>
