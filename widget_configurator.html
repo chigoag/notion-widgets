@@ -5,9 +5,9 @@
 <title>Clock Widget</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500&family=Inter:wght@400;500&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Inter:wght@400;700&family=Dancing+Script:wght@400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; background: transparent; }
 
   /* ---------- Widget view (shown when ?embed=1) ---------- */
   #widgetView {
@@ -15,43 +15,63 @@
     height: 100vh;
     align-items: center;
     justify-content: center;
-    font-family: var(--font, Georgia, 'Times New Roman', serif);
+    font-family: var(--font, 'Helvetica Neue', Arial, sans-serif);
   }
   #widgetView .widget {
-    text-align: center;
-    padding: 28px 48px;
-    border-radius: 18px;
-    border: 1px solid var(--border);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 26px 36px;
+    border-radius: 28px;
     background: var(--card);
   }
-  #widgetView .label {
+  #widgetView .time-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  #widgetView .ampm-stack {
+    display: flex;
+    flex-direction: column;
     font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  #widgetView .ampm-part {
+    color: var(--text);
+    opacity: 0.35;
+    line-height: 1.5;
+  }
+  #widgetView .ampm-part.active {
+    opacity: 1;
     color: var(--accent);
-    letter-spacing: 1.5px;
-    text-transform: var(--label-case, uppercase);
-    font-weight: var(--label-weight, normal);
-    font-style: var(--label-style, normal);
-    margin-bottom: 6px;
   }
   #widgetView .time {
-    font-size: 46px;
+    font-size: 64px;
+    font-weight: 700;
     color: var(--text);
-    letter-spacing: 2px;
+    letter-spacing: 0.5px;
+    line-height: 1;
   }
   #widgetView .seconds {
-    font-size: 22px;
-    color: var(--accent);
-    letter-spacing: 1px;
-    vertical-align: 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    opacity: 0.6;
     margin-left: 4px;
   }
   #widgetView .date {
-    font-size: 14px;
-    color: var(--accent);
-    margin-top: 8px;
-    letter-spacing: 1.5px;
+    display: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.6;
+    letter-spacing: 1px;
     text-transform: uppercase;
+    margin-top: 4px;
   }
+  #widgetView .date.visible { display: block; }
 
   /* ---------- Configurator view (default) ---------- */
   #configuratorView {
@@ -63,6 +83,8 @@
     align-items: center;
     padding: 40px 20px 60px;
   }
+  .back-link { align-self: flex-start; font-size: 13px; color: #8A7F6E; text-decoration: none; margin-bottom: 16px; }
+  .back-link:hover { text-decoration: underline; }
   #configuratorView h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
   #configuratorView p.sub { color: #8A7F6E; font-size: 14px; margin-top: 0; margin-bottom: 32px; }
   .layout {
@@ -87,7 +109,7 @@
     margin: 16px 0 6px;
   }
   .controls label:first-child { margin-top: 0; }
-  .controls select, .controls input[type="text"] {
+  .controls select {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
@@ -106,9 +128,9 @@
   .swatch.selected { border-color: #4A4238; }
   .swatch.custom-swatch {
     display: flex; align-items: center; justify-content: center;
-    background: conic-gradient(from 0deg, #F5B8B8, #F5E1B8, #C9E4B8, #B8DCE4, #C6B8E4, #F5B8B8);
+    background: conic-gradient(from 0deg, #FF3B30, #FF9500, #2F6B4F, #1F3A5F, #FF3B30);
     font-size: 14px;
-    color: #4A4238;
+    color: #fff;
   }
   .custom-colours {
     display: none;
@@ -150,40 +172,21 @@
   }
   .opacity-dot.selected { border-color: #4A4238; }
   .colour-block { margin-bottom: 10px; }
-  .transparent-toggle {
+  .toggle-row {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 13px;
     margin: 12px 0 4px;
   }
-  .transparent-toggle input { width: auto; }
-  .text-format-row { display: flex; gap: 8px; align-items: center; }
-  .fmt-btn {
-    width: 36px; height: 36px;
-    border: 1px solid #D8C9B0;
-    border-radius: 8px;
-    background: #FBF7F1;
-    cursor: pointer;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-  .fmt-btn.active { background: #6B5B45; color: #fff; border-color: #6B5B45; }
-  .text-format-row select { flex: 1; }
+  .toggle-row input { width: auto; }
   .preview-area { flex: 1; min-width: 300px; }
   iframe {
     width: 100%;
     height: 220px;
     border: 1px solid #E4DDD0;
     border-radius: 14px;
-    /* checkerboard so transparency is visible in the preview */
-    background-image:
-      linear-gradient(45deg, #eee 25%, transparent 25%),
-      linear-gradient(-45deg, #eee 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #eee 75%),
-      linear-gradient(-45deg, transparent 75%, #eee 75%);
-    background-size: 16px 16px;
-    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background: #EDEDED;
   }
   .link-box {
     margin-top: 20px;
@@ -213,15 +216,21 @@
 
   <!-- Bare widget — only shown when the URL has ?embed=1 -->
   <div id="widgetView">
-    <div class="widget">
-      <div class="label" id="label"></div>
-      <div><span class="time" id="time">--:--</span><span class="seconds" id="seconds"></span><span class="seconds" id="ampm"></span></div>
-      <div class="date" id="date">Loading…</div>
+    <div class="widget" id="widgetBox">
+      <div class="time-row">
+        <span class="ampm-stack" id="ampmStack">
+          <span class="ampm-part" id="ampAbbrev">AM</span>
+          <span class="ampm-part" id="pmAbbrev">PM</span>
+        </span>
+        <span class="time" id="time">--:--</span><span class="seconds" id="seconds"></span>
+      </div>
+      <div class="date" id="date"></div>
     </div>
   </div>
 
   <!-- Picker tool — shown by default -->
   <div id="configuratorView">
+    <a href="index.html" class="back-link">← Back to home</a>
     <h1>Customise your clock widget</h1>
     <p class="sub">Pick a look, then copy the link into Notion using <code>/embed</code>.</p>
 
@@ -229,102 +238,77 @@
       <div class="controls">
         <label>Colour theme</label>
         <div class="swatches">
-          <div class="swatch selected" data-theme="beige" style="background:#F5F0E8;" title="Beige"></div>
-          <div class="swatch" data-theme="blush" style="background:#F7ECEA;" title="Blush"></div>
-          <div class="swatch" data-theme="sage" style="background:#EEF1E8;" title="Sage"></div>
-          <div class="swatch" data-theme="ivory" style="background:#FBF9F3;" title="Ivory & gold"></div>
-          <div class="swatch" data-theme="terracotta" style="background:#F3E4DA;" title="Terracotta"></div>
-          <div class="swatch" data-theme="navy" style="background:#E9EDF2;" title="Navy & cream"></div>
-          <div class="swatch" data-theme="charcoal" style="background:#2B2B29;" title="Charcoal & gold"></div>
+          <div class="swatch selected" data-theme="charcoal" style="background:#101010;" title="Charcoal & amber"></div>
+          <div class="swatch" data-theme="coral" style="background:#FF3B30;" title="Coral"></div>
+          <div class="swatch" data-theme="amber" style="background:#FF9500;" title="Amber"></div>
+          <div class="swatch" data-theme="forest" style="background:#2F6B4F;" title="Forest"></div>
+          <div class="swatch" data-theme="navy" style="background:#1F3A5F;" title="Navy"></div>
+          <div class="swatch" data-theme="slate" style="background:#3A3F47;" title="Slate"></div>
+          <div class="swatch" data-theme="ivory" style="background:#F2F0EA; border:1px solid #ddd;" title="Ivory"></div>
           <div class="swatch custom-swatch" data-theme="custom" title="Custom colours">+</div>
         </div>
 
         <div class="custom-colours" id="customColours">
-          <label class="transparent-toggle">
-            <input type="checkbox" id="bgTransparent">
-            Transparent background (blends into Notion page)
-          </label>
-
-          <div class="colour-block" id="bgRow">
-            <div class="colour-row">
-              <label>Background</label>
-              <input type="color" id="cBg" value="#F5F0E8">
-            </div>
-            <div class="opacity-dots" data-key="bg"></div>
-          </div>
           <div class="colour-block">
             <div class="colour-row">
               <label>Card</label>
-              <input type="color" id="cCard" value="#FBF7F1">
+              <input type="color" id="cCard" value="#101010">
             </div>
             <div class="opacity-dots" data-key="card"></div>
           </div>
           <div class="colour-block">
             <div class="colour-row">
-              <label>Border</label>
-              <input type="color" id="cBorder" value="#D8C9B0">
-            </div>
-            <div class="opacity-dots" data-key="border"></div>
-          </div>
-          <div class="colour-block">
-            <div class="colour-row">
-              <label>Time text</label>
-              <input type="color" id="cText" value="#6B5B45">
+              <label>Number colour</label>
+              <input type="color" id="cText" value="#F2F2F2">
             </div>
             <div class="opacity-dots" data-key="text"></div>
           </div>
           <div class="colour-block">
             <div class="colour-row">
-              <label>Label/date</label>
-              <input type="color" id="cAccent" value="#A8927A">
+              <label>Accent (AM/PM)</label>
+              <input type="color" id="cAccent" value="#FF9F1C">
             </div>
             <div class="opacity-dots" data-key="accent"></div>
           </div>
         </div>
 
-        <label for="labelInput">Label text (optional)</label>
-        <input type="text" id="labelInput" placeholder="e.g. Good morning" maxlength="30">
-
-        <label>Label formatting</label>
-        <div class="text-format-row">
-          <button type="button" class="fmt-btn" id="fmtBold" title="Bold"><b>B</b></button>
-          <button type="button" class="fmt-btn" id="fmtItalic" title="Italic"><i>I</i></button>
-          <select id="caseSelect">
-            <option value="uppercase">UPPERCASE</option>
-            <option value="none">Normal case</option>
-            <option value="lowercase">lowercase</option>
-            <option value="capitalize">Capitalize</option>
-          </select>
-        </div>
-
         <label for="fontSelect">Font style</label>
         <select id="fontSelect">
-          <option value="playfair">Playfair Display (elegant serif)</option>
-          <option value="serif" selected>Georgia (classic serif)</option>
+          <option value="sans" selected>Helvetica Neue (clean sans)</option>
+          <option value="inter">Inter (modern sans)</option>
+          <option value="poppins">Poppins (rounded sans)</option>
+          <option value="mono">Space Mono (digital)</option>
+          <option value="playfair">Playfair Display (serif)</option>
+          <option value="serif">Georgia (classic serif)</option>
           <option value="dancing">Dancing Script (handwritten)</option>
-          <option value="poppins">Poppins (modern sans)</option>
-          <option value="inter">Inter (clean sans)</option>
         </select>
 
         <label for="formatSelect">Time format</label>
         <select id="formatSelect">
-          <option value="12">12-hour</option>
+          <option value="12">12-hour (with AM/PM)</option>
           <option value="24">24-hour</option>
         </select>
 
-        <label class="transparent-toggle" style="margin-top: 12px;">
+        <label class="toggle-row">
           <input type="checkbox" id="showSeconds">
           Show seconds
         </label>
 
-        <label for="dateLayoutSelect">Date layout</label>
-        <select id="dateLayoutSelect">
-          <option value="full">Sunday 26 July</option>
-          <option value="dayMonthYear">26 July 2026</option>
-          <option value="short">Sun, 26 Jul</option>
-          <option value="numeric">26/07/2026</option>
-          <option value="monthDay">July 26</option>
-        </select>
+        <label class="toggle-row">
+          <input type="checkbox" id="showDate">
+          Show date
+        </label>
+
+        <div id="dateLayoutWrap" style="display:none;">
+          <label for="dateLayoutSelect">Date layout</label>
+          <select id="dateLayoutSelect">
+            <option value="full">Sunday 26 July</option>
+            <option value="dayMonthYear">26 July 2026</option>
+            <option value="short">Sun, 26 Jul</option>
+            <option value="numeric">26/07/2026</option>
+            <option value="monthDay">July 26</option>
+          </select>
+        </div>
       </div>
 
       <div class="preview-area">
@@ -341,20 +325,21 @@
   const isEmbed = params.get('embed') === '1';
 
   const themes = {
-    beige:      { bg: '#F5F0E8', card: '#FBF7F1', border: '#D8C9B0', text: '#6B5B45', accent: '#A8927A' },
-    blush:      { bg: '#F7ECEA', card: '#FDF6F5', border: '#E3C3BE', text: '#8A5A52', accent: '#C99A92' },
-    sage:       { bg: '#EEF1E8', card: '#F6F8F2', border: '#C9D4B8', text: '#586B45', accent: '#95A87F' },
-    charcoal:   { bg: '#2B2B29', card: '#3A3A37', border: '#5C5A52', text: '#F0EAD8', accent: '#C9A66B' },
-    ivory:      { bg: '#FBF9F3', card: '#FFFFFF', border: '#E6DFC8', text: '#4A4234', accent: '#B7A15C' },
-    terracotta: { bg: '#F3E4DA', card: '#FBF3EC', border: '#D9A98B', text: '#7A4326', accent: '#C17B4F' },
-    navy:       { bg: '#E9EDF2', card: '#F5F7FA', border: '#AEBDD1', text: '#28374D', accent: '#5C7599' }
+    charcoal: { card: '#101010', text: '#F2F2F2', accent: '#FF9F1C' },
+    coral:    { card: '#FF3B30', text: '#14110B', accent: '#14110B' },
+    amber:    { card: '#FF9500', text: '#1A1200', accent: '#1A1200' },
+    forest:   { card: '#2F6B4F', text: '#FFFFFF', accent: '#BFE6A9' },
+    navy:     { card: '#1F3A5F', text: '#FFFFFF', accent: '#FFD166' },
+    slate:    { card: '#3A3F47', text: '#FFFFFF', accent: '#7FD1C0' },
+    ivory:    { card: '#F2F0EA', text: '#14110B', accent: '#8A8578' }
   };
   const fonts = {
-    serif:    "Georgia, 'Times New Roman', serif",
     sans:     "'Helvetica Neue', Arial, sans-serif",
-    playfair: "'Playfair Display', Georgia, serif",
-    poppins:  "'Poppins', 'Helvetica Neue', sans-serif",
     inter:    "'Inter', 'Helvetica Neue', sans-serif",
+    poppins:  "'Poppins', 'Helvetica Neue', sans-serif",
+    mono:     "'Space Mono', 'Courier New', monospace",
+    playfair: "'Playfair Display', Georgia, serif",
+    serif:    "Georgia, 'Times New Roman', serif",
     dancing:  "'Dancing Script', cursive"
   };
 
@@ -372,33 +357,31 @@
     const widgetView = document.getElementById('widgetView');
     widgetView.style.display = 'flex';
 
+    const themeName = params.get('theme');
     let theme;
-    if (params.get('theme') === 'custom') {
+    if (themeName === 'custom') {
       theme = {
-        bg:     params.get('bgTransparent') === '1' ? 'transparent' : (params.get('bg') || '#F5F0E8'),
-        card:   params.get('card') || '#FBF7F1',
-        border: params.get('border') || '#D8C9B0',
-        text:   params.get('text') || '#6B5B45',
-        accent: params.get('accent') || '#A8927A'
+        card:   params.get('card')   || '#101010',
+        text:   params.get('text')   || '#F2F2F2',
+        accent: params.get('accent') || '#FF9F1C'
       };
     } else {
-      theme = themes[params.get('theme')] || themes.beige;
+      theme = themes[themeName] || themes.charcoal;
     }
-    const font = fonts[params.get('font')] || fonts.serif;
-    const label = params.get('label') || '';
+    const font = fonts[params.get('font')] || fonts.sans;
     const use24h = params.get('format') === '24';
+    const showSeconds = params.get('seconds') === '1';
+    const showDate = params.get('date') === '1';
 
-    document.body.style.background = theme.bg;
     widgetView.style.setProperty('--card', theme.card);
-    widgetView.style.setProperty('--border', theme.border);
     widgetView.style.setProperty('--text', theme.text);
     widgetView.style.setProperty('--accent', theme.accent);
     widgetView.style.setProperty('--font', font);
-    document.getElementById('label').textContent = label;
-    document.getElementById('label').style.display = label ? 'block' : 'none';
-    widgetView.style.setProperty('--label-case', params.get('labelCase') || 'uppercase');
-    widgetView.style.setProperty('--label-weight', params.get('labelBold') === '1' ? 'bold' : 'normal');
-    widgetView.style.setProperty('--label-style', params.get('labelItalic') === '1' ? 'italic' : 'normal');
+
+    const ampmStack = document.getElementById('ampmStack');
+    const ampAbbrev = document.getElementById('ampAbbrev');
+    const pmAbbrev = document.getElementById('pmAbbrev');
+    if (use24h) ampmStack.style.display = 'none';
 
     const dateLayouts = {
       full:         { weekday: 'long', day: 'numeric', month: 'long' },
@@ -408,12 +391,14 @@
       monthDay:     { month: 'long', day: 'numeric' }
     };
     const dateLayout = dateLayouts[params.get('dateLayout')] || dateLayouts.full;
-    const showSeconds = params.get('seconds') === '1';
+    const dateEl = document.getElementById('date');
+    if (showDate) dateEl.classList.add('visible');
 
     function update() {
       const now = new Date();
       let hours = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
       let period = '';
       if (!use24h) {
         period = hours >= 12 ? 'pm' : 'am';
@@ -423,9 +408,14 @@
         hours = String(hours).padStart(2, '0');
       }
       document.getElementById('time').textContent = `${hours}:${minutes}`;
-      document.getElementById('seconds').textContent = showSeconds ? ':' + String(now.getSeconds()).padStart(2, '0') : '';
-      document.getElementById('ampm').textContent = use24h ? '' : ' ' + period;
-      document.getElementById('date').textContent = now.toLocaleDateString('en-GB', dateLayout);
+      document.getElementById('seconds').textContent = showSeconds ? ':' + seconds : '';
+      if (!use24h) {
+        ampAbbrev.classList.toggle('active', period === 'am');
+        pmAbbrev.classList.toggle('active', period === 'pm');
+      }
+      if (showDate) {
+        dateEl.textContent = now.toLocaleDateString('en-GB', dateLayout);
+      }
     }
     update();
     setInterval(update, 1000);
@@ -434,15 +424,14 @@
     // ---------- Configurator / picker tool ----------
     document.getElementById('widgetView').remove();
 
+    const preselectTheme = params.get('theme');
     const state = {
-      theme: 'beige', label: '', font: 'serif', format: '12', bgTransparent: false,
-      labelBold: false, labelItalic: false, labelCase: 'uppercase', dateLayout: 'full', showSeconds: false,
+      theme: (preselectTheme && themes[preselectTheme]) ? preselectTheme : 'charcoal',
+      font: 'sans', format: '12', showSeconds: false, showDate: false, dateLayout: 'full',
       custom: {
-        bg:     { hex: '#F5F0E8', opacity: 100 },
-        card:   { hex: '#FBF7F1', opacity: 100 },
-        border: { hex: '#D8C9B0', opacity: 100 },
-        text:   { hex: '#6B5B45', opacity: 100 },
-        accent: { hex: '#A8927A', opacity: 100 }
+        card:   { hex: '#101010', opacity: 100 },
+        text:   { hex: '#F2F2F2', opacity: 100 },
+        accent: { hex: '#FF9F1C', opacity: 100 }
       }
     };
 
@@ -452,24 +441,15 @@
       p.set('embed', '1');
       p.set('theme', state.theme);
       if (state.theme === 'custom') {
-        if (state.bgTransparent) {
-          p.set('bgTransparent', '1');
-        } else {
-          p.set('bg', hexToRgba(state.custom.bg.hex, state.custom.bg.opacity));
-        }
         p.set('card', hexToRgba(state.custom.card.hex, state.custom.card.opacity));
-        p.set('border', hexToRgba(state.custom.border.hex, state.custom.border.opacity));
         p.set('text', hexToRgba(state.custom.text.hex, state.custom.text.opacity));
         p.set('accent', hexToRgba(state.custom.accent.hex, state.custom.accent.opacity));
       }
-      if (state.label) p.set('label', state.label);
-      p.set('labelBold', state.labelBold ? '1' : '0');
-      p.set('labelItalic', state.labelItalic ? '1' : '0');
-      p.set('labelCase', state.labelCase);
       p.set('font', state.font);
       p.set('format', state.format);
-      p.set('dateLayout', state.dateLayout);
       p.set('seconds', state.showSeconds ? '1' : '0');
+      p.set('date', state.showDate ? '1' : '0');
+      p.set('dateLayout', state.dateLayout);
       base.search = p.toString();
       return base.toString();
     }
@@ -481,6 +461,10 @@
     }
 
     document.querySelectorAll('.swatch').forEach(sw => {
+      if (sw.dataset.theme === state.theme) {
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+      }
       sw.addEventListener('click', () => {
         document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
         sw.classList.add('selected');
@@ -490,7 +474,7 @@
       });
     });
 
-    const colourKeys = { cBg: 'bg', cCard: 'card', cBorder: 'border', cText: 'text', cAccent: 'accent' };
+    const colourKeys = { cCard: 'card', cText: 'text', cAccent: 'accent' };
     const opacitySteps = [100, 75, 50, 25, 0];
 
     function renderDots(key) {
@@ -528,17 +512,6 @@
 
     Object.values(colourKeys).forEach(renderDots);
 
-    document.getElementById('bgTransparent').addEventListener('change', e => {
-      state.bgTransparent = e.target.checked;
-      document.getElementById('bgRow').style.opacity = e.target.checked ? '0.4' : '1';
-      document.getElementById('cBg').disabled = e.target.checked;
-      if (state.theme === 'custom') refresh();
-    });
-
-    document.getElementById('labelInput').addEventListener('input', e => {
-      state.label = e.target.value;
-      refresh();
-    });
     document.getElementById('fontSelect').addEventListener('change', e => {
       state.font = e.target.value;
       refresh();
@@ -547,26 +520,17 @@
       state.format = e.target.value;
       refresh();
     });
-    document.getElementById('dateLayoutSelect').addEventListener('change', e => {
-      state.dateLayout = e.target.value;
-      refresh();
-    });
     document.getElementById('showSeconds').addEventListener('change', e => {
       state.showSeconds = e.target.checked;
       refresh();
     });
-    document.getElementById('fmtBold').addEventListener('click', () => {
-      state.labelBold = !state.labelBold;
-      document.getElementById('fmtBold').classList.toggle('active', state.labelBold);
+    document.getElementById('showDate').addEventListener('change', e => {
+      state.showDate = e.target.checked;
+      document.getElementById('dateLayoutWrap').style.display = e.target.checked ? 'block' : 'none';
       refresh();
     });
-    document.getElementById('fmtItalic').addEventListener('click', () => {
-      state.labelItalic = !state.labelItalic;
-      document.getElementById('fmtItalic').classList.toggle('active', state.labelItalic);
-      refresh();
-    });
-    document.getElementById('caseSelect').addEventListener('change', e => {
-      state.labelCase = e.target.value;
+    document.getElementById('dateLayoutSelect').addEventListener('change', e => {
+      state.dateLayout = e.target.value;
       refresh();
     });
 
