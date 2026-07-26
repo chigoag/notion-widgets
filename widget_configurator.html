@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clock Widget — Customise Yours</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #FAF7F2;
+    color: #4A4238;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+  }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  p.sub { color: #8A7F6E; font-size: 14px; margin-top: 0; margin-bottom: 32px; }
+  .layout {
+    display: flex;
+    gap: 40px;
+    max-width: 780px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .controls {
+    background: #fff;
+    border: 1px solid #E4DDD0;
+    border-radius: 14px;
+    padding: 24px;
+    width: 280px;
+  }
+  .controls label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 16px 0 6px;
+  }
+  .controls label:first-child { margin-top: 0; }
+  .controls select, .controls input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #D8C9B0;
+    font-size: 14px;
+    background: #FBF7F1;
+  }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .swatch {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .swatch.selected { border-color: #4A4238; }
+  .swatch.custom-swatch {
+    display: flex; align-items: center; justify-content: center;
+    background: conic-gradient(from 0deg, #F5B8B8, #F5E1B8, #C9E4B8, #B8DCE4, #C6B8E4, #F5B8B8);
+    font-size: 14px;
+    color: #4A4238;
+  }
+  .custom-colours {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #E4DDD0;
+  }
+  .custom-colours.visible { display: block; }
+  .colour-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .colour-row label { margin: 0; font-weight: 400; font-size: 13px; }
+  .colour-row input[type="color"] {
+    width: 36px; height: 26px; border: none; border-radius: 6px; padding: 0; cursor: pointer;
+  }
+  .preview-area { flex: 1; min-width: 300px; }
+  iframe {
+    width: 100%;
+    height: 220px;
+    border: 1px solid #E4DDD0;
+    border-radius: 14px;
+  }
+  .link-box {
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #E4DDD0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    word-break: break-all;
+    color: #6B5B45;
+  }
+  button#copyBtn {
+    margin-top: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #6B5B45;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button#copyBtn:active { transform: scale(0.98); }
+  .copied { color: #5A7A4B; font-size: 13px; margin-left: 10px; }
+</style>
+</head>
+<body>
+  <h1>Customise your clock widget</h1>
+  <p class="sub">Pick a look, then copy the link into Notion using <code>/embed</code>.</p>
+
+  <div class="layout">
+    <div class="controls">
+      <label>Colour theme</label>
+      <div class="swatches">
+        <div class="swatch selected" data-theme="beige" style="background:#F5F0E8;" title="Beige"></div>
+        <div class="swatch" data-theme="blush" style="background:#F7ECEA;" title="Blush"></div>
+        <div class="swatch" data-theme="sage" style="background:#EEF1E8;" title="Sage"></div>
+        <div class="swatch" data-theme="ivory" style="background:#FBF9F3;" title="Ivory & gold"></div>
+        <div class="swatch" data-theme="terracotta" style="background:#F3E4DA;" title="Terracotta"></div>
+        <div class="swatch" data-theme="navy" style="background:#E9EDF2;" title="Navy & cream"></div>
+        <div class="swatch" data-theme="charcoal" style="background:#2B2B29;" title="Charcoal & gold"></div>
+        <div class="swatch custom-swatch" data-theme="custom" title="Custom colours">+</div>
+      </div>
+
+      <div class="custom-colours" id="customColours">
+        <div class="colour-row"><label>Background</label><input type="color" id="cBg" value="#F5F0E8"></div>
+        <div class="colour-row"><label>Card</label><input type="color" id="cCard" value="#FBF7F1"></div>
+        <div class="colour-row"><label>Border</label><input type="color" id="cBorder" value="#D8C9B0"></div>
+        <div class="colour-row"><label>Time text</label><input type="color" id="cText" value="#6B5B45"></div>
+        <div class="colour-row"><label>Label / date</label><input type="color" id="cAccent" value="#A8927A"></div>
+      </div>
+
+      <label for="labelInput">Label text (optional)</label>
+      <input type="text" id="labelInput" placeholder="e.g. Good morning" maxlength="30">
+
+      <label for="fontSelect">Font style</label>
+      <select id="fontSelect">
+        <option value="playfair">Playfair Display (elegant serif)</option>
+        <option value="serif" selected>Georgia (classic serif)</option>
+        <option value="dancing">Dancing Script (handwritten)</option>
+        <option value="poppins">Poppins (modern sans)</option>
+        <option value="inter">Inter (clean sans)</option>
+      </select>
+
+      <label for="formatSelect">Time format</label>
+      <select id="formatSelect">
+        <option value="12">12-hour</option>
+        <option value="24">24-hour</option>
+      </select>
+    </div>
+
+    <div class="preview-area">
+      <iframe id="preview"></iframe>
+      <div class="link-box" id="linkBox"></div>
+      <button id="copyBtn">Copy embed link</button>
+      <span class="copied" id="copiedMsg" style="display:none;">Copied!</span>
+    </div>
+  </div>
+
+<script>
+  // Change this if the widget file lives at a different path in your repo
+  const WIDGET_FILE = 'notion_clock_widget_customisable.html';
+
+  const state = { theme: 'beige', label: '', font: 'serif', format: '12',
+    custom: { bg: '#F5F0E8', card: '#FBF7F1', border: '#D8C9B0', text: '#6B5B45', accent: '#A8927A' } };
+
+  function buildUrl() {
+    const base = new URL(WIDGET_FILE, window.location.href);
+    const p = new URLSearchParams();
+    p.set('theme', state.theme);
+    if (state.theme === 'custom') {
+      p.set('bg', state.custom.bg);
+      p.set('card', state.custom.card);
+      p.set('border', state.custom.border);
+      p.set('text', state.custom.text);
+      p.set('accent', state.custom.accent);
+    }
+    if (state.label) p.set('label', state.label);
+    p.set('font', state.font);
+    p.set('format', state.format);
+    base.search = p.toString();
+    return base.toString();
+  }
+
+  function refresh() {
+    const url = buildUrl();
+    document.getElementById('preview').src = url;
+    document.getElementById('linkBox').textContent = url;
+  }
+
+  document.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      sw.classList.add('selected');
+      state.theme = sw.dataset.theme;
+      document.getElementById('customColours').classList.toggle('visible', state.theme === 'custom');
+      refresh();
+    });
+  });
+
+  ['cBg','cCard','cBorder','cText','cAccent'].forEach(id => {
+    document.getElementById(id).addEventListener('input', e => {
+      const key = { cBg:'bg', cCard:'card', cBorder:'border', cText:'text', cAccent:'accent' }[id];
+      state.custom[key] = e.target.value;
+      if (state.theme === 'custom') refresh();
+    });
+  });
+
+  document.getElementById('labelInput').addEventListener('input', e => {
+    state.label = e.target.value;
+    refresh();
+  });
+  document.getElementById('fontSelect').addEventListener('change', e => {
+    state.font = e.target.value;
+    refresh();
+  });
+  document.getElementById('formatSelect').addEventListener('change', e => {
+    state.format = e.target.value;
+    refresh();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(buildUrl()).then(() => {
+      const msg = document.getElementById('copiedMsg');
+      msg.style.display = 'inline';
+      setTimeout(() => msg.style.display = 'none', 1500);
+    });
+  });
+
+  refresh();
+</script>
+</body>
+</html>
